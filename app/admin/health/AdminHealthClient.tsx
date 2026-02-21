@@ -6,12 +6,21 @@ import { useState } from "react";
 type HealthProps = {
   roomName: string;
   participantCount: number;
+  trafficEstimate: {
+    downstreamMbps: number;
+    downstreamGbPerHour: number;
+    assumptions: {
+      videoMbps: number;
+      audioMbps: number;
+    };
+  };
   checks: Array<{ label: string; ok: boolean }>;
 };
 
 export default function AdminHealthClient({
   roomName,
   participantCount,
+  trafficEstimate,
   checks
 }: HealthProps) {
   const router = useRouter();
@@ -44,7 +53,33 @@ export default function AdminHealthClient({
           <article className="grid min-h-[140px] place-items-center rounded-xl border border-dashed border-slate-600 bg-slate-950 text-slate-400">
             Активных участников: {participantCount}
           </article>
+          <article className="grid min-h-[140px] place-items-center rounded-xl border border-dashed border-slate-600 bg-slate-950 text-slate-300">
+            <div className="text-center">
+              <div className="text-xs uppercase tracking-wide text-slate-500">
+                Estimate Downstream
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-cyan-300">
+                {trafficEstimate.downstreamMbps.toFixed(2)} Mbps
+              </div>
+            </div>
+          </article>
+          <article className="grid min-h-[140px] place-items-center rounded-xl border border-dashed border-slate-600 bg-slate-950 text-slate-300">
+            <div className="text-center">
+              <div className="text-xs uppercase tracking-wide text-slate-500">
+                Estimate / hour
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-cyan-300">
+                {trafficEstimate.downstreamGbPerHour.toFixed(2)} GB
+              </div>
+            </div>
+          </article>
         </div>
+
+        <p className="mt-3 text-xs text-slate-500">
+          Оценка по модели SFU: N*(N-1)*(video+audio). Базовые битрейты: video{" "}
+          {trafficEstimate.assumptions.videoMbps.toFixed(2)} Mbps, audio{" "}
+          {trafficEstimate.assumptions.audioMbps.toFixed(2)} Mbps.
+        </p>
 
         <div className="mt-4 grid gap-2">
           {checks.map((check) => (

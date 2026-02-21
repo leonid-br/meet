@@ -21,6 +21,7 @@ export default async function AdminHealthPage() {
 
   const roomName = resolveRoomName();
   const participantCount = await getParticipantCount(roomName);
+  const trafficEstimate = estimateTraffic(participantCount);
 
   const checks = [
     { label: "ROOM_PASSWORD", ok: Boolean(process.env.ROOM_PASSWORD) },
@@ -35,9 +36,42 @@ export default async function AdminHealthPage() {
     <AdminHealthClient
       roomName={roomName}
       participantCount={participantCount}
+      trafficEstimate={trafficEstimate}
       checks={checks}
     />
   );
+}
+
+function estimateTraffic(participantCount: number) {
+  const videoValue = Number(process.env.TRAFFIC_ESTIMATE_VIDEO_MBPS || "1.2");
+  const audioValue = Number(process.env.TRAFFIC_ESTIMATE_AUDIO_MBPS || "0.06");
+  const averageVideoMbps = Number.isFinite(videoValue) && videoValue > 0 ? videoValue : 1.2;
+  const averageAudioMbps = Number.isFinite(audioValue) && audioValue > 0 ? audioValue : 0.06;
+  const perStreamMbps = averageVideoMbps + averageAudioMbps;
+
+  if (participantCount < 2 || perStreamMbps <= 0) {
+    return {
+      downstreamMbps: 0,
+      downstreamGbPerHour: 0,
+      assumptions: {
+        videoMbps: averageVideoMbps,
+        audioMbps: averageAudioMbps
+      }
+    };
+  }
+
+  const streamFanout = participantCount * (participantCount - 1);
+  const downstreamMbps = streamFanout * perStreamMbps;
+  const downstreamGbPerHour = (downstreamMbps / 8) * 3600 / 1024;
+
+  return {
+    downstreamMbps,
+    downstreamGbPerHour,
+    assumptions: {
+      videoMbps: averageVideoMbps,
+      audioMbps: averageAudioMbps
+    }
+  };
 }
 
 async function getParticipantCount(roomName: string) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { CSSProperties, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminLoginClient() {
@@ -9,6 +9,9 @@ export default function AdminLoginClient() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const passwordMaskStyle = {
+    WebkitTextSecurity: isPasswordVisible ? "none" : "disc"
+  } as CSSProperties;
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,19 +52,26 @@ export default function AdminLoginClient() {
         <h1 className="text-3xl font-semibold">Admin Login</h1>
         <p className="mt-2 text-sm text-slate-400">Доступ только для владельца.</p>
 
-        <form onSubmit={onSubmit} className="mt-4 space-y-3">
+        <form onSubmit={onSubmit} autoComplete="off" className="mt-4 space-y-3">
           <label htmlFor="adminPassword" className="block text-sm text-slate-300">
             Админ-пароль
           </label>
           <div className="relative">
             <input
               id="adminPassword"
-              type={isPasswordVisible ? "text" : "password"}
-              autoComplete="current-password"
+              name="admin_passcode"
+              type="text"
+              autoComplete="off"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Введите админ-пароль"
               required
+              spellCheck={false}
+              autoCorrect="off"
+              autoCapitalize="none"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              style={passwordMaskStyle}
               className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3 py-3 pr-12 text-base text-slate-100 outline-none ring-cyan-400/70 transition focus:ring-2"
             />
             <button
