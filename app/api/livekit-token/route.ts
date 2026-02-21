@@ -2,8 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { AccessToken } from "livekit-server-sdk";
 import { getAuthCookieName, verifyAuthToken } from "@/lib/auth";
-
-const DEFAULT_ROOM_NAME = "friends-room";
+import { resolveRoomName } from "@/lib/livekit";
 
 export async function POST(request: NextRequest) {
   const authSecret = process.env.ROOM_AUTH_SECRET;
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
   const livekitUrl = process.env.LIVEKIT_URL;
   const livekitApiKey = process.env.LIVEKIT_API_KEY;
   const livekitApiSecret = process.env.LIVEKIT_API_SECRET;
-  const roomName = process.env.LIVEKIT_ROOM_NAME || DEFAULT_ROOM_NAME;
+  const roomName = resolveRoomName();
 
   if (!livekitUrl || !livekitApiKey || !livekitApiSecret) {
     return NextResponse.json(

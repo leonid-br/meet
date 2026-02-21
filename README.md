@@ -21,6 +21,8 @@ cp .env.example .env.local
 ```env
 ROOM_PASSWORD=your_strong_password
 ROOM_AUTH_SECRET=some_long_random_secret
+ADMIN_PASSWORD=your_admin_password
+ADMIN_AUTH_SECRET=another_long_random_secret
 LIVEKIT_URL=wss://your-project.livekit.cloud
 LIVEKIT_API_KEY=your_livekit_api_key
 LIVEKIT_API_SECRET=your_livekit_api_secret
@@ -42,6 +44,8 @@ Open `http://localhost:3000`.
 3. Add Environment Variable:
    - `ROOM_PASSWORD`
    - `ROOM_AUTH_SECRET`
+   - `ADMIN_PASSWORD`
+   - `ADMIN_AUTH_SECRET`
    - `LIVEKIT_URL`
    - `LIVEKIT_API_KEY`
    - `LIVEKIT_API_SECRET`
@@ -53,6 +57,8 @@ After deploy:
 - `/room` protected page
 - join with display name
 - real audio/video call via LiveKit
+- `/admin` login (owner only)
+- `/admin/health` room health and active participants
 
 ## LiveKit Cloud setup
 
