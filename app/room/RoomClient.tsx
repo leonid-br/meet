@@ -289,6 +289,7 @@ function RoomGrid() {
         (track) => track?.participant?.isLocal === false,
     );
     const mainMobileTrack = remoteTracks[0] ?? localTrack ?? tracks[0];
+    const totalParticipants = tracks.length;
 
     return (
         <div className="h-full min-h-0">
@@ -301,28 +302,75 @@ function RoomGrid() {
             </div>
 
             <div className="h-full min-h-0 md:hidden">
-                {mainMobileTrack ? (
-                    <ParticipantTile
-                        trackRef={mainMobileTrack}
-                        className="h-[75%] min-h-0 w-full rounded-xl border border-slate-700 bg-black"
-                    />
+                {totalParticipants === 4 ? (
+                    <div className="grid h-full min-h-0 grid-cols-2 grid-rows-2 gap-2">
+                        {tracks.slice(0, 4).map((track, index) => (
+                            <ParticipantTile
+                                key={`m4-${track.participant.identity}-${index}`}
+                                trackRef={track}
+                                className="h-full min-h-0 w-full rounded-xl border border-slate-700 bg-black"
+                            />
+                        ))}
+                    </div>
+                ) : totalParticipants === 5 && localTrack && remoteTracks.length >= 4 ? (
+                    <div className="grid h-full min-h-0 grid-cols-[1fr_auto] gap-2">
+                        <div className="grid min-h-0 grid-cols-2 grid-rows-2 gap-2">
+                            {remoteTracks.slice(0, 4).map((track, index) => (
+                                <ParticipantTile
+                                    key={`m5-${track.participant.identity}-${index}`}
+                                    trackRef={track}
+                                    className="h-full min-h-0 w-full rounded-xl border border-slate-700 bg-black"
+                                />
+                            ))}
+                        </div>
+                        <div className="flex min-h-0 items-end pb-3 pr-1">
+                            <ParticipantTile
+                                trackRef={localTrack}
+                                className="h-[10rem] w-[8rem] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
+                            />
+                        </div>
+                    </div>
+                ) : totalParticipants === 3 && localTrack && remoteTracks.length >= 2 ? (
+                    <div className="grid h-full min-h-0 grid-cols-[1fr_auto] gap-2">
+                        <div className="grid min-h-0 grid-rows-2 gap-2">
+                            {remoteTracks.slice(0, 2).map((track, index) => (
+                                <ParticipantTile
+                                    key={`m3-${track.participant.identity}-${index}`}
+                                    trackRef={track}
+                                    className="h-full min-h-0 w-full rounded-xl border border-slate-700 bg-black"
+                                />
+                            ))}
+                        </div>
+                        <div className="flex min-h-0 items-end pb-3 pr-1">
+                            <ParticipantTile
+                                trackRef={localTrack}
+                                className="h-[10rem] w-[8rem] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
+                            />
+                        </div>
+                    </div>
+                ) : mainMobileTrack ? (
+                    <>
+                        <ParticipantTile
+                            trackRef={mainMobileTrack}
+                            className="h-[75%] min-h-0 w-full rounded-xl border border-slate-700 bg-black"
+                        />
+                        {localTrack &&
+                        mainMobileTrack &&
+                        localTrack.participant.identity !==
+                            mainMobileTrack.participant.identity ? (
+                            <div className="flex h-[25%] items-end justify-end pr-3 pb-3">
+                                <ParticipantTile
+                                    trackRef={localTrack}
+                                    className="h-[10rem] w-[8rem] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
+                                />
+                            </div>
+                        ) : null}
+                    </>
                 ) : (
-                    <div className="grid h-[75%] min-h-0 place-items-center rounded-xl border border-slate-700 bg-slate-950 text-slate-400">
+                    <div className="grid h-full min-h-0 place-items-center rounded-xl border border-slate-700 bg-slate-950 text-slate-400">
                         Нет видео
                     </div>
                 )}
-
-                {localTrack &&
-                mainMobileTrack &&
-                localTrack.participant.identity !==
-                    mainMobileTrack.participant.identity ? (
-                    <div className="flex h-[25%] items-end justify-end pr-3 pb-3">
-                        <ParticipantTile
-                            trackRef={localTrack}
-                            className="h-[10rem] w-[8rem] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
-                        />
-                    </div>
-                ) : null}
             </div>
         </div>
     );
