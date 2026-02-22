@@ -2,7 +2,7 @@
 
 import "@livekit/components-styles";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
     ConnectionStateToast,
     ControlBar,
@@ -10,6 +10,7 @@ import {
     LiveKitRoom,
     ParticipantTile,
     RoomAudioRenderer,
+    useRoomContext,
     useTracks,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
@@ -26,6 +27,7 @@ export default function RoomClient() {
     const [displayName, setDisplayName] = useState("");
     const [error, setError] = useState("");
     const [deviceError, setDeviceError] = useState("");
+    const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
     const [connection, setConnection] = useState<TokenResponse | null>(null);
     const router = useRouter();
 
@@ -165,6 +167,17 @@ export default function RoomClient() {
                         Ошибка устройства: {deviceError}
                     </div>
                 ) : null}
+                {cameraPermissionDenied ? (
+                    <CameraPermissionRecovery
+                        onSuccess={() => {
+                            setCameraPermissionDenied(false);
+                            setDeviceError("");
+                        }}
+                        onBlocked={(message) => {
+                            setDeviceError(message);
+                        }}
+                    />
+                ) : null}
                 <ConnectionStateToast />
                 <RoomAudioRenderer />
                 <ControlBar
@@ -175,10 +188,69 @@ export default function RoomClient() {
                     }}
                     onDeviceError={({ source, error }) => {
                         setDeviceError(`${source}: ${error.message}`);
+                        if (
+                            source === Track.Source.Camera &&
+                            /permission|denied|notallowed/i.test(error.message)
+                        ) {
+                            setCameraPermissionDenied(true);
+                        }
                     }}
                 />
             </LiveKitRoom>
         </main>
+    );
+}
+
+function CameraPermissionRecovery({
+    onSuccess,
+    onBlocked,
+}: {
+    onSuccess: () => void;
+    onBlocked: (message: string) => void;
+}) {
+    const room = useRoomContext();
+    const [isRequesting, setIsRequesting] = useState(false);
+    const [hint, setHint] = useState("");
+
+    const retryCameraPermission = useCallback(async () => {
+        setIsRequesting(true);
+        setHint("");
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+            });
+            stream.getTracks().forEach((track) => track.stop());
+            await room.localParticipant.setCameraEnabled(true);
+            onSuccess();
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : "Не удалось запросить камеру";
+            if (/notallowed|permission|denied/i.test(message)) {
+                setHint(
+                    "Chrome заблокировал доступ. Открой: Адрес сайта -> Разрешения -> Камера -> Разрешить, затем обнови страницу.",
+                );
+            } else {
+                setHint(message);
+            }
+            onBlocked(`camera: ${message}`);
+        } finally {
+            setIsRequesting(false);
+        }
+    }, [onBlocked, onSuccess, room.localParticipant]);
+
+    return (
+        <div className="mt-2 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
+            <div>Камера заблокирована. Нажми, чтобы заново запросить доступ.</div>
+            <button
+                type="button"
+                onClick={retryCameraPermission}
+                disabled={isRequesting}
+                className="mt-2 rounded-lg bg-amber-300 px-3 py-2 font-semibold text-amber-950 transition hover:bg-amber-200 disabled:opacity-70"
+            >
+                {isRequesting ? "Запрашиваем..." : "Запросить доступ к камере"}
+            </button>
+            {hint ? <div className="mt-2 text-xs text-amber-200/90">{hint}</div> : null}
+        </div>
     );
 }
 
