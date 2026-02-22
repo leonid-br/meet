@@ -172,7 +172,6 @@ export default function RoomClient() {
                         chat: false,
                         screenShare: false,
                         leave: false,
-                        settings: true,
                     }}
                     onDeviceError={({ source, error }) => {
                         setDeviceError(`${source}: ${error.message}`);
