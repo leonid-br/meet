@@ -137,31 +137,48 @@ export default function RoomClient() {
     }
 
     return (
-        <main className="grid min-h-screen place-items-center p-4">
+        <main className="h-[100dvh] overflow-hidden p-2 sm:p-4">
             <LiveKitRoom
                 token={connection.token}
                 serverUrl={connection.wsUrl}
                 connect
                 video
                 audio
-                className="w-full max-w-[1080px] rounded-2xl border border-slate-700 bg-slate-900/90 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-sm [&_.lk-control-bar]:mt-3 [&_.lk-control-bar]:max-h-none [&_.lk-control-bar]:flex-wrap [&_.lk-control-bar]:justify-center [&_.lk-control-bar]:gap-2 [&_.lk-control-bar]:border-slate-700 [&_.lk-control-bar_.lk-button]:px-3 [&_.lk-control-bar_.lk-button]:py-2 [&_.lk-control-bar_.lk-button]:text-sm [&_.lk-control-bar_.lk-button-group]:h-auto [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/95 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
+                className="mx-auto flex h-full w-full max-w-[1080px] min-h-0 flex-col rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-sm sm:p-6 [&_.lk-control-bar]:max-h-none [&_.lk-control-bar]:flex-wrap [&_.lk-control-bar]:justify-center [&_.lk-control-bar]:gap-1.5 [&_.lk-control-bar]:border-slate-700 [&_.lk-control-bar]:px-1 [&_.lk-control-bar]:py-2 [&_.lk-control-bar_.lk-button]:my-0 [&_.lk-control-bar_.lk-button]:px-2.5 [&_.lk-control-bar_.lk-button]:py-1.5 [&_.lk-control-bar_.lk-button]:text-sm [&_.lk-control-bar_.lk-button-group]:h-auto [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/95 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
                 onDisconnected={() => {
                     setConnection(null);
                 }}
             >
-                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <h1 className="text-2xl font-semibold">
-                        Комната: {connection.roomName}
+                <div className="mb-2 flex items-center justify-between gap-2">
+                    <h1 className="truncate text-lg font-semibold sm:text-2xl">
+                        {connection.roomName}
                     </h1>
                     <button
                         onClick={leaveRoom}
                         disabled={isLeaving}
-                        className="rounded-xl bg-slate-700 px-4 py-3 font-semibold text-slate-100 transition hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-70"
+                        aria-label="Выйти из комнаты"
+                        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-slate-100 transition hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                        {isLeaving ? "Выход..." : "Выйти из комнаты"}
+                        <svg
+                            className="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h4M16 17l5-5-5-5M21 12H9"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
                     </button>
                 </div>
-                <RoomGrid />
+                <div className="min-h-0 flex-1">
+                    <RoomGrid />
+                </div>
                 {deviceError ? (
                     <div className="mt-2 text-sm text-rose-400">
                         Ошибка устройства: {deviceError}
@@ -224,7 +241,9 @@ function CameraPermissionRecovery({
             onSuccess();
         } catch (error) {
             const message =
-                error instanceof Error ? error.message : "Не удалось запросить камеру";
+                error instanceof Error
+                    ? error.message
+                    : "Не удалось запросить камеру";
             if (/notallowed|permission|denied/i.test(message)) {
                 setHint(
                     "Chrome заблокировал доступ. Открой: Адрес сайта -> Разрешения -> Камера -> Разрешить, затем обнови страницу.",
@@ -240,7 +259,9 @@ function CameraPermissionRecovery({
 
     return (
         <div className="mt-2 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">
-            <div>Камера заблокирована. Нажми, чтобы заново запросить доступ.</div>
+            <div>
+                Камера заблокирована. Нажми, чтобы заново запросить доступ.
+            </div>
             <button
                 type="button"
                 onClick={retryCameraPermission}
@@ -249,7 +270,9 @@ function CameraPermissionRecovery({
             >
                 {isRequesting ? "Запрашиваем..." : "Запросить доступ к камере"}
             </button>
-            {hint ? <div className="mt-2 text-xs text-amber-200/90">{hint}</div> : null}
+            {hint ? (
+                <div className="mt-2 text-xs text-amber-200/90">{hint}</div>
+            ) : null}
         </div>
     );
 }
@@ -268,7 +291,7 @@ function RoomGrid() {
     const mainMobileTrack = remoteTracks[0] ?? localTrack ?? tracks[0];
 
     return (
-        <div className="mt-4">
+        <div className="h-full min-h-0">
             <div className="hidden md:block">
                 <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
                     <GridLayout tracks={tracks}>
@@ -277,14 +300,14 @@ function RoomGrid() {
                 </div>
             </div>
 
-            <div className="relative md:hidden">
+            <div className="h-full min-h-0 md:hidden">
                 {mainMobileTrack ? (
                     <ParticipantTile
                         trackRef={mainMobileTrack}
-                        className="h-[62vh] min-h-[52vh] w-full rounded-xl border border-slate-700 bg-black"
+                        className="h-[75%] min-h-0 w-full rounded-xl border border-slate-700 bg-black"
                     />
                 ) : (
-                    <div className="grid h-[62vh] min-h-[52vh] place-items-center rounded-xl border border-slate-700 bg-slate-950 text-slate-400">
+                    <div className="grid h-[75%] min-h-0 place-items-center rounded-xl border border-slate-700 bg-slate-950 text-slate-400">
                         Нет видео
                     </div>
                 )}
@@ -293,10 +316,12 @@ function RoomGrid() {
                 mainMobileTrack &&
                 localTrack.participant.identity !==
                     mainMobileTrack.participant.identity ? (
-                    <ParticipantTile
-                        trackRef={localTrack}
-                        className="absolute bottom-3 right-3 h-[24vh] min-h-[110px] w-[34vw] max-w-[150px] min-w-[100px] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
-                    />
+                    <div className="flex h-[25%] items-end justify-end pr-3 pb-3">
+                        <ParticipantTile
+                            trackRef={localTrack}
+                            className="h-[10rem] w-[8rem] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
+                        />
+                    </div>
                 ) : null}
             </div>
         </div>
