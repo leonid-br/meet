@@ -12,7 +12,7 @@ import {
     RoomAudioRenderer,
     useTracks,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { RoomEvent, Track } from "livekit-client";
 
 type TokenResponse = {
     token: string;
@@ -25,6 +25,7 @@ export default function RoomClient() {
     const [isJoining, setIsJoining] = useState(false);
     const [displayName, setDisplayName] = useState("");
     const [error, setError] = useState("");
+    const [deviceError, setDeviceError] = useState("");
     const [connection, setConnection] = useState<TokenResponse | null>(null);
     const router = useRouter();
 
@@ -141,7 +142,7 @@ export default function RoomClient() {
                 connect
                 video
                 audio
-                className="w-full max-w-[1080px] rounded-2xl border border-slate-700 bg-slate-900/90 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-sm [&_.lk-control-bar]:mt-3 [&_.lk-control-bar]:border-slate-700 [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/90 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
+                className="w-full max-w-[1080px] rounded-2xl border border-slate-700 bg-slate-900/90 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-sm [&_.lk-control-bar]:mt-3 [&_.lk-control-bar]:max-h-none [&_.lk-control-bar]:flex-wrap [&_.lk-control-bar]:justify-center [&_.lk-control-bar]:gap-2 [&_.lk-control-bar]:border-slate-700 [&_.lk-control-bar_.lk-button]:px-3 [&_.lk-control-bar_.lk-button]:py-2 [&_.lk-control-bar_.lk-button]:text-sm [&_.lk-control-bar_.lk-button-group]:h-auto [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/95 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
                 onDisconnected={() => {
                     setConnection(null);
                 }}
@@ -159,10 +160,23 @@ export default function RoomClient() {
                     </button>
                 </div>
                 <RoomGrid />
+                {deviceError ? (
+                    <div className="mt-2 text-sm text-rose-400">
+                        Ошибка устройства: {deviceError}
+                    </div>
+                ) : null}
                 <ConnectionStateToast />
                 <RoomAudioRenderer />
                 <ControlBar
-                    controls={{ chat: false, screenShare: false, leave: false }}
+                    controls={{
+                        chat: false,
+                        screenShare: false,
+                        leave: false,
+                        settings: true,
+                    }}
+                    onDeviceError={({ source, error }) => {
+                        setDeviceError(`${source}: ${error.message}`);
+                    }}
                 />
             </LiveKitRoom>
         </main>
@@ -172,14 +186,57 @@ export default function RoomClient() {
 function RoomGrid() {
     const tracks = useTracks(
         [{ source: Track.Source.Camera, withPlaceholder: true }],
-        { onlySubscribed: false },
+        {
+            onlySubscribed: false,
+            updateOnlyOn: [
+                RoomEvent.ActiveSpeakersChanged,
+                RoomEvent.ParticipantConnected,
+                RoomEvent.ParticipantDisconnected,
+                RoomEvent.TrackSubscribed,
+                RoomEvent.TrackUnsubscribed,
+            ],
+        },
     );
+    const localTrack = tracks.find((track) => track.participant.isLocal);
+    const remoteTracks = tracks.filter((track) => !track.participant.isLocal);
+    const speakingRemoteTrack = remoteTracks.find(
+        (track) => track.participant.isSpeaking,
+    );
+    const mainMobileTrack =
+        speakingRemoteTrack ?? remoteTracks[0] ?? localTrack ?? tracks[0];
 
     return (
-        <div className="mt-4 grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-            <GridLayout tracks={tracks}>
-                <ParticipantTile />
-            </GridLayout>
+        <div className="mt-4">
+            <div className="hidden md:block">
+                <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+                    <GridLayout tracks={tracks}>
+                        <ParticipantTile />
+                    </GridLayout>
+                </div>
+            </div>
+
+            <div className="relative md:hidden">
+                {mainMobileTrack ? (
+                    <ParticipantTile
+                        trackRef={mainMobileTrack}
+                        className="h-[62vh] min-h-[52vh] w-full rounded-xl border border-slate-700 bg-black"
+                    />
+                ) : (
+                    <div className="grid h-[62vh] min-h-[52vh] place-items-center rounded-xl border border-slate-700 bg-slate-950 text-slate-400">
+                        Нет видео
+                    </div>
+                )}
+
+                {localTrack &&
+                mainMobileTrack &&
+                localTrack.participant.identity !==
+                    mainMobileTrack.participant.identity ? (
+                    <ParticipantTile
+                        trackRef={localTrack}
+                        className="absolute bottom-3 right-3 h-[24vh] min-h-[110px] w-[34vw] max-w-[150px] min-w-[100px] rounded-xl border border-slate-600 shadow-xl shadow-slate-950/70"
+                    />
+                ) : null}
+            </div>
         </div>
     );
 }
