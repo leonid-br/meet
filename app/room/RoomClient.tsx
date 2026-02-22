@@ -12,7 +12,7 @@ import {
     RoomAudioRenderer,
     useTracks,
 } from "@livekit/components-react";
-import { RoomEvent, Track } from "livekit-client";
+import { Track } from "livekit-client";
 
 type TokenResponse = {
     token: string;
@@ -186,24 +186,15 @@ export default function RoomClient() {
 function RoomGrid() {
     const tracks = useTracks(
         [{ source: Track.Source.Camera, withPlaceholder: true }],
-        {
-            onlySubscribed: false,
-            updateOnlyOn: [
-                RoomEvent.ActiveSpeakersChanged,
-                RoomEvent.ParticipantConnected,
-                RoomEvent.ParticipantDisconnected,
-                RoomEvent.TrackSubscribed,
-                RoomEvent.TrackUnsubscribed,
-            ],
-        },
+        { onlySubscribed: false },
     );
-    const localTrack = tracks.find((track) => track.participant.isLocal);
-    const remoteTracks = tracks.filter((track) => !track.participant.isLocal);
-    const speakingRemoteTrack = remoteTracks.find(
-        (track) => track.participant.isSpeaking,
+    const localTrack = tracks.find(
+        (track) => track?.participant?.isLocal === true,
     );
-    const mainMobileTrack =
-        speakingRemoteTrack ?? remoteTracks[0] ?? localTrack ?? tracks[0];
+    const remoteTracks = tracks.filter(
+        (track) => track?.participant?.isLocal === false,
+    );
+    const mainMobileTrack = remoteTracks[0] ?? localTrack ?? tracks[0];
 
     return (
         <div className="mt-4">
