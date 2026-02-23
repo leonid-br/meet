@@ -144,7 +144,7 @@ export default function RoomClient() {
                 connect
                 video
                 audio
-                className="mx-auto flex h-full w-full max-w-[1080px] min-h-0 flex-col rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-sm sm:p-6 [&_.lk-control-bar]:max-h-none [&_.lk-control-bar]:flex-wrap [&_.lk-control-bar]:justify-center [&_.lk-control-bar]:gap-1.5 [&_.lk-control-bar]:border-slate-700 [&_.lk-control-bar]:px-1 [&_.lk-control-bar]:py-2 [&_.lk-control-bar_.lk-button]:my-0 [&_.lk-control-bar_.lk-button]:px-2.5 [&_.lk-control-bar_.lk-button]:py-1.5 [&_.lk-control-bar_.lk-button]:text-sm [&_.lk-control-bar_.lk-button-group]:h-auto [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/95 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
+                className="mx-auto flex h-full w-full max-w-[1240px] min-h-0 flex-col rounded-2xl border border-slate-700 bg-slate-900/90 p-3 shadow-2xl shadow-slate-950/40 backdrop-blur-sm sm:p-6 [&_.lk-control-bar]:max-h-none [&_.lk-control-bar]:flex-wrap [&_.lk-control-bar]:justify-center [&_.lk-control-bar]:gap-1.5 [&_.lk-control-bar]:border-slate-700 [&_.lk-control-bar]:px-1 [&_.lk-control-bar]:py-2 [&_.lk-control-bar_.lk-button]:my-0 [&_.lk-control-bar_.lk-button]:px-2.5 [&_.lk-control-bar_.lk-button]:py-1.5 [&_.lk-control-bar_.lk-button]:text-sm [&_.lk-control-bar_.lk-button-group]:h-auto [&_.lk-device-menu]:z-20 [&_.lk-device-menu]:border [&_.lk-device-menu]:border-slate-700 [&_.lk-device-menu]:bg-slate-950/95 [&_.lk-device-menu]:backdrop-blur [&_.lk-device-menu-heading]:px-2 [&_.lk-device-menu-heading]:py-1 [&_.lk-device-menu-heading]:text-xs [&_.lk-device-menu-heading]:opacity-80 [&_.lk-grid-layout]:max-h-[70vh] [&_.lk-grid-layout]:min-h-[46vh] md:[&_.lk-grid-layout]:min-h-[52vh] [&_.lk-media-device-select:not(:last-child)]:mb-2 [&_.lk-media-device-select:not(:last-child)]:pb-1 [&_.lk-media-device-select_li:not(:last-child)]:mb-0.5 [&_.lk-media-device-select_li>.lk-button]:bg-slate-900/75 [&_.lk-media-device-select_li>.lk-button]:px-2 [&_.lk-media-device-select_li>.lk-button]:py-1.5 [&_.lk-media-device-select_li>.lk-button]:text-[13px] [&_.lk-participant-tile]:overflow-hidden [&_.lk-participant-tile]:rounded-xl [&_.lk-participant-tile]:border [&_.lk-participant-tile]:border-slate-700"
                 onDisconnected={() => {
                     setConnection(null);
                 }}
@@ -312,7 +312,9 @@ function RoomGrid() {
                             />
                         ))}
                     </div>
-                ) : totalParticipants === 5 && localTrack && remoteTracks.length >= 4 ? (
+                ) : totalParticipants === 5 &&
+                  localTrack &&
+                  remoteTracks.length >= 4 ? (
                     <div className="grid h-full min-h-0 grid-cols-[1fr_auto] gap-2">
                         <div className="grid min-h-0 grid-cols-2 grid-rows-2 gap-2">
                             {remoteTracks.slice(0, 4).map((track, index) => (
@@ -330,7 +332,9 @@ function RoomGrid() {
                             />
                         </div>
                     </div>
-                ) : totalParticipants === 3 && localTrack && remoteTracks.length >= 2 ? (
+                ) : totalParticipants === 3 &&
+                  localTrack &&
+                  remoteTracks.length >= 2 ? (
                     <div className="grid h-full min-h-0 grid-cols-[1fr_auto] gap-2">
                         <div className="grid min-h-0 grid-rows-2 gap-2">
                             {remoteTracks.slice(0, 2).map((track, index) => (
